@@ -3,7 +3,7 @@
     --gold-primary: #c8a253;
     --gold-dark: #a68134;
     --gold-light: #f4ebd9;
-    --dark-bg: #c5c2cb;
+    --dark-bg: #bfb870;
     --dark-card: #1b181d;
     --plum-accent: #3d1b2c;
     --text-dark: #1e1e1e;
@@ -82,14 +82,7 @@ body.auth-body {
     position: relative;
 }
 
-.auth-visual::before {
-    content: "♛";
-    position: absolute;
-    top: 35px;
-    left: 45px;
-    font-size: 3.2rem;
-    color: rgba(200, 162, 83, 0.2);
-}
+
 
 .luxury-tag {
     display: inline-block;
