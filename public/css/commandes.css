@@ -1,0 +1,57 @@
+/* public/css/commandes.css — pages COMMANDES et PAIEMENTS (tout est prefixe .commandes-page) */
+.commandes-page {
+  --bg: #faf0ee; --card: #fff; --bordeaux: #6e2a3f; --primary: #7e3a55; --primary-d: #682f46;
+  --rose-l: #f3dfe3; --muted: #8a6b74; --line: #f0e3e1; --danger: #a8384f; --ok: #2f7a55; --warn: #a86a1a;
+  --radius: 20px;
+  background: var(--bg); border-radius: var(--radius); padding: 22px; color: #2b1d22;
+}
+.commandes-page * { box-sizing: border-box; }
+.commandes-page .muted { color: var(--muted); }
+.commandes-page .inline { display: inline; }
+.commandes-page .nowrap { white-space: nowrap; }
+.commandes-page h1 { color: var(--bordeaux); font-size: 1.7rem; font-weight: 600; margin: 0 0 .7em; }
+
+/* Cartes de statistiques */
+.commandes-page .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.commandes-page .stat { background: var(--card); border-radius: var(--radius); padding: 20px; color: var(--muted); }
+.commandes-page .stat span { display: block; font-size: 2rem; font-weight: 600; color: var(--primary); }
+
+/* Une commande = une carte */
+.commandes-page .card { background: var(--card); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; }
+.commandes-page .order-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.commandes-page .lines { list-style: none; margin: 0 0 12px; padding: 0; }
+.commandes-page .lines li { padding: 5px 0; }
+.commandes-page .stock-ko { color: var(--danger); font-weight: 600; }
+.commandes-page .order-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.commandes-page .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Boutons */
+.commandes-page .btn {
+  display: inline-block; background: var(--primary); color: #fff; border: 1px solid var(--primary);
+  border-radius: 14px; padding: 11px 20px; font: inherit; font-weight: 500; cursor: pointer; text-decoration: none;
+}
+.commandes-page .btn:hover { background: var(--primary-d); }
+.commandes-page .btn-sm { padding: 6px 12px; font-size: .85rem; border-radius: 10px; }
+.commandes-page .btn-ghost { background: transparent; color: var(--primary); }
+.commandes-page .btn-ghost:hover { background: var(--rose-l); }
+.commandes-page .btn-danger { background: var(--danger); border-color: var(--danger); }
+.commandes-page .btn-danger:hover { background: #8d2d41; }
+.commandes-page .btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* Badges de statut */
+.commandes-page .status { display: inline-block; padding: 2px 11px; border-radius: 99px; font-size: .78rem; font-weight: 600; }
+.commandes-page .s-en-attente { background: #fff1dc; color: var(--warn); }
+.commandes-page .s-acceptee   { background: #e3edf9; color: #2d5d9f; }
+.commandes-page .s-refusee    { background: #fbe6e9; color: var(--danger); }
+.commandes-page .s-livree     { background: #e1f3e9; color: var(--ok); }
+.commandes-page .s-non-paye   { background: #fff1dc; color: var(--warn); }
+.commandes-page .s-paye       { background: #e1f3e9; color: var(--ok); }
+
+/* Tableau (page paiements) */
+.commandes-page .table-wrap { overflow-x: auto; background: var(--card); border-radius: var(--radius); padding: 8px 20px 12px; }
+.commandes-page table { width: 100%; border-collapse: collapse; }
+.commandes-page th { text-align: left; font-weight: 600; padding: 14px 8px; border-bottom: 1px solid var(--line); }
+.commandes-page td { padding: 14px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.commandes-page tbody tr:last-child td { border-bottom: 0; }
+
+@media (max-width: 640px) { .commandes-page { padding: 14px; } }

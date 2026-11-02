@@ -8,6 +8,17 @@ class Database {
     private string $password = "";
     private ?PDO $conn = null;
 
+    // Instance unique : toute l'application partage la meme connexion.
+    private static ?Database $instance = null;
+
+    /** Raccourci utilise par les modeles : Database::get()->prepare(...) */
+    public static function get(): PDO {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance->getConnection();
+    }
+
     public function getConnection(): PDO {
         if ($this->conn === null) {
             try {
