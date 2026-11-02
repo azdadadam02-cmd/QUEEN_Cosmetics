@@ -85,7 +85,7 @@
 .produits-page .qty { display: inline-block; }
 
 @media (max-width: 640px) { .produits-page { padding: 14px; } .produits-page .table-wrap { padding: 6px 12px; } }
-=======
+
 /* LOGIN */
 :root {
     --gold-primary: #c8a253;
