@@ -1,3 +1,91 @@
+
+/* Produit 
+/* =========================================================
+   public/css/produits.css — Style des pages PRODUITS & STOCK
+   (liste.php, formulaire.php, stock.php)
+   POURQUOI : tout est préfixé par .produits-page, donc ces règles ne s'appliquent
+   qu'aux pages produits et ne modifient pas le reste de l'application.
+   Les couleurs sont des variables locales : on change le thème ici seulement.
+   ========================================================= */
+.produits-page {
+  --bg: #faf0ee;  --card: #fff;  --bordeaux: #6e2a3f;  --primary: #7e3a55;
+  --primary-d: #682f46;  --rose-l: #f3dfe3;  --muted: #8a6b74;  --line: #f0e3e1;
+  --edit: #a0704f;  --danger: #a8384f;  --ok: #2f7a55;  --warn: #a86a1a;  --radius: 20px;
+
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 22px;
+  color: #2b1d22;
+}
+.produits-page * { box-sizing: border-box; }
+.produits-page .muted { color: var(--muted); }
+.produits-page .nowrap { white-space: nowrap; }
+.produits-page .inline { display: inline; }
+
+/* Titres */
+.produits-page h1 { color: var(--bordeaux); font-size: 1.7rem; font-weight: 600; margin: 0 0 .7em; }
+.produits-page h2 { color: var(--bordeaux); font-size: 1.25rem; font-weight: 600; margin: 0; }
+
+/* En-tête de section : titre à gauche, boutons à droite */
+.produits-page .page-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.produits-page .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Cartes de statistiques */
+.produits-page .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.produits-page .stat { background: var(--card); border-radius: var(--radius); padding: 20px; color: var(--muted); }
+.produits-page .stat span { display: block; font-size: 2rem; font-weight: 600; color: var(--primary); }
+
+/* Boutons */
+.produits-page .btn {
+  display: inline-block; background: var(--primary); color: #fff; border: 1px solid var(--primary);
+  border-radius: 14px; padding: 11px 20px; font: inherit; font-weight: 500; cursor: pointer; text-decoration: none;
+}
+.produits-page .btn:hover { background: var(--primary-d); }
+.produits-page .btn-sm { padding: 6px 12px; font-size: .85rem; border-radius: 10px; }
+.produits-page .btn-ghost { background: transparent; color: var(--primary); }
+.produits-page .btn-ghost:hover { background: var(--rose-l); }
+
+/* Icônes crayon / corbeille */
+.produits-page .icon-btn { background: none; border: 0; padding: 6px; cursor: pointer; border-radius: 8px; line-height: 0; display: inline-block; }
+.produits-page .icon-btn:hover { background: var(--rose-l); }
+.produits-page .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.produits-page .icon-edit { color: var(--edit); }
+.produits-page .icon-del  { color: var(--danger); }
+
+/* Tableaux */
+.produits-page .table-wrap { overflow-x: auto; background: var(--card); border-radius: var(--radius); padding: 8px 20px 12px; margin-bottom: 16px; }
+.produits-page table { width: 100%; border-collapse: collapse; }
+.produits-page th { text-align: left; font-weight: 600; padding: 14px 8px; border-bottom: 1px solid var(--line); }
+.produits-page td { padding: 14px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.produits-page tbody tr:last-child td { border-bottom: 0; }
+.produits-page tr.low { background: #fff7ee; }               /* ligne en stock faible */
+.produits-page .mini { width: 44px; height: 44px; object-fit: cover; border-radius: 10px; display: block; }
+
+/* Page stock : champ quantité + boutons */
+.produits-page .stock-form { display: flex; gap: 6px; align-items: center; }
+.produits-page .qty { width: 84px; margin: 0; padding: 7px 8px; }
+
+/* Badges (Faible / Rupture) */
+.produits-page .status { display: inline-block; padding: 2px 11px; border-radius: 99px; font-size: .78rem; font-weight: 600; }
+.produits-page .s-refusee { background: #fbe6e9; color: var(--danger); }
+
+/* Alerte stock faible */
+.produits-page .alert { padding: 12px 16px; border-radius: 14px; margin-bottom: 16px; }
+.produits-page .alert-warning { background: #fff1dc; color: var(--warn); }
+
+/* Formulaire (ajout / modification) */
+.produits-page .card { background: var(--card); border-radius: var(--radius); padding: 22px 24px; }
+.produits-page .narrow { max-width: 460px; margin: 0 auto; }
+.produits-page label { display: block; font-weight: 600; font-size: .9rem; color: var(--bordeaux); margin-bottom: 14px; }
+.produits-page input, .produits-page select {
+  display: block; width: 100%; margin-top: 5px; padding: 11px 12px; border: 1px solid var(--line);
+  border-radius: 12px; font: inherit; background: #fffdfc;
+}
+.produits-page input:focus, .produits-page select:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+.produits-page .qty { display: inline-block; }
+
+@media (max-width: 640px) { .produits-page { padding: 14px; } .produits-page .table-wrap { padding: 6px 12px; } }
+
 /* LOGIN */
 :root {
     --gold-primary: #c8a253;

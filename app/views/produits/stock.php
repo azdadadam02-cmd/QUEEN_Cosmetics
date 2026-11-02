@@ -11,6 +11,9 @@
  * Variables reçues de ProduitController::stock() : $titre, $produits, $alertes
  */
 ?>
+<link rel="stylesheet" href="<?= e(asset('css/produits.css')) ?>">   <!-- 1. zid hna -->
+<div class="produits-page">                                          
+
 <div class="page-head">
   <h1>Gestion du stock</h1>
   <a class="btn btn-ghost" href="<?= e(url('produits', 'liste')) ?>">← Retour aux produits</a>
@@ -71,3 +74,4 @@
   <strong>+ Ajouter</strong> : ajoute la quantité au stock actuel (ex : réception de marchandise).<br>
   <strong>Fixer à</strong> : remplace le stock par la valeur saisie (ex : après un inventaire).
 </p>
+</div>
