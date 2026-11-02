@@ -14,6 +14,9 @@ $action = $edition
     ? url('produits', 'modifier', ['id' => $produit['id']])
     : url('produits', 'creer');
 ?>
+<link rel="stylesheet" href="<?= e(asset('css/produits.css')) ?>">   <!-- 1. zid hna -->
+<div class="produits-page"> 
+
 <section class="card narrow">
   <h1><?= e($titre) ?></h1>
 
@@ -71,3 +74,4 @@ $action = $edition
     </div>
   </form>
 </section>
+</div>
