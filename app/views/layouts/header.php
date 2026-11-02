@@ -1,4 +1,4 @@
-<?php
+<?php defined('APP_ROOT') || exit;
 /** @var array $nav  (user, cartCount, notifCount) — fourni par render() */
 $title  = $title  ?? 'QUEEN';
 $active = $active ?? '';
@@ -16,7 +16,7 @@ $on     = fn(string $k): string => $active === $k ? ' active' : '';
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= e(asset('css/client.css')) ?>">
-    <script>document.documentElement.classList.add('js');</script>
+    <script nonce="<?= e(csp_nonce()) ?>">document.documentElement.classList.add('js');</script>
 </head>
 <body>
 
@@ -54,6 +54,7 @@ $on     = fn(string $k): string => $active === $k ? ' active' : '';
 
         <!-- ═════ NAV SECONDAIRE : Profil (connecté) ou Connexion ═════ -->
         <div class="nav-secondary">
+            <a class="lang-switch" href="<?= e(lang_switch_url()) ?>" hreflang="<?= is_rtl() ? 'fr' : 'ar' ?>"><?= e(lang_switch_label()) ?></a>
         <?php if ($user): ?>
             <div class="profile" id="profile">
                 <button type="button" class="profile-btn" id="profile-btn" aria-haspopup="true" aria-expanded="false">
@@ -69,10 +70,10 @@ $on     = fn(string $k): string => $active === $k ? ' active' : '';
                             <small><?= e($user['email']) ?></small>
                         </div>
                     </div>
-                    <a class="pm-item danger" role="menuitem" href="<?= e(url('logout')) ?>">
+                    <form method="post" action="<?= e(url('logout')) ?>" class="pm-form"><?= csrf_field() ?><button type="submit" class="pm-item danger" role="menuitem">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
                         Déconnexion
-                    </a>
+                    </button></form>
                 </div>
             </div>
         <?php else: ?>

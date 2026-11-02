@@ -1,7 +1,10 @@
-<?php
+<?php defined('APP_ROOT') || exit;
 /** Panier stocké en session : [ produit_id => quantité ] */
 class Panier
 {
+    public const MAX_LIGNES = 30;   // produits différents
+    public const MAX_QTE    = 20;   // par produit
+
     private static function lire(): array { $c = $_SESSION['panier'] ?? []; return is_array($c) ? $c : []; }
     private static function ecrire(array $c): void { $_SESSION['panier'] = $c; }
 
@@ -18,16 +21,18 @@ class Panier
 
         $c = self::lire();
         $actuel = (int)($c[$id] ?? 0);
+        if (!isset($c[$id]) && count($c) >= self::MAX_LIGNES) return [false, 'Panier plein (' . self::MAX_LIGNES . ' produits maximum).'];
+        if ($actuel >= self::MAX_QTE) return [false, 'Quantité maximale (' . self::MAX_QTE . ') atteinte pour « ' . $p['nom'] . ' ».'];
         if ($actuel >= $stock) return [false, 'Stock maximum atteint pour « ' . $p['nom'] . ' ».'];
 
-        $c[$id] = min($stock, $actuel + max(1, $qte));
+        $c[$id] = min($stock, self::MAX_QTE, $actuel + max(1, $qte));
         self::ecrire($c);
         return [true, '« ' . $p['nom'] . ' » ajouté au panier.'];
     }
 
     public static function fixer(int $id, int $qte): void {
         $c = self::lire();
-        if ($qte < 1) { unset($c[$id]); } else { $c[$id] = $qte; }
+        if ($qte < 1) { unset($c[$id]); } elseif (isset($c[$id])) { $c[$id] = min($qte, self::MAX_QTE); }
         self::ecrire($c);
     }
 

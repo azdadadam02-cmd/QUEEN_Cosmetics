@@ -1,3 +1,4 @@
+<?php defined('APP_ROOT') || exit; ?>
 </main>
 
 <footer class="site-footer">

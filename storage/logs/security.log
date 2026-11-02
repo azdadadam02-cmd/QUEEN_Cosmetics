@@ -1,0 +1,19 @@
+2026-11-02 13:38:17 | ::1 | uid=4 | login_ok | produits@queen.ma role=responsable_produits
+2026-11-02 13:41:47 | ::1 | uid=- | login_echec | commandes@queen.ma
+2026-11-02 13:41:54 | ::1 | uid=5 | login_ok | commandes@queen.ma role=responsable_commandes
+2026-11-02 13:42:08 | ::1 | uid=5 | deconnexion | 
+2026-11-02 13:42:38 | ::1 | uid=4 | login_ok | produits@queen.ma role=responsable_produits
+2026-11-02 13:45:15 | ::1 | uid=4 | deconnexion | 
+2026-11-02 13:47:26 | ::1 | uid=6 | login_ok | yassin1@gmail.com role=client
+2026-11-02 13:50:35 | ::1 | uid=6 | deconnexion | 
+2026-11-02 13:50:49 | ::1 | uid=5 | login_ok | commandes@queen.ma role=responsable_commandes
+2026-11-02 13:53:19 | ::1 | uid=5 | deconnexion | 
+2026-11-02 13:53:39 | ::1 | uid=3 | login_ok | admin@queen.ma role=admin
+2026-11-02 13:54:05 | ::1 | uid=3 | deconnexion | 
+2026-11-02 13:55:54 | ::1 | uid=6 | login_ok | yassin1@gmail.com role=client
+2026-11-02 14:21:51 | ::1 | uid=6 | deconnexion | 
+2026-11-02 14:22:11 | ::1 | uid=3 | login_ok | admin@queen.ma role=admin
+2026-11-02 14:26:14 | ::1 | uid=3 | deconnexion | 
+2026-11-02 14:28:02 | ::1 | uid=6 | login_ok | yassin1@gmail.com role=client
+2026-11-02 14:28:57 | ::1 | uid=6 | deconnexion | 
+2026-11-02 21:11:09 | ::1 | uid=6 | login_ok | yassin1@gmail.com role=client

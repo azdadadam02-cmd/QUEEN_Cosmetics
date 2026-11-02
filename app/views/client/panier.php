@@ -1,4 +1,5 @@
-<?php /** @var array $panier */ $lignes = $panier['lignes']; ?>
+<?php defined('APP_ROOT') || exit;
+/** @var array $panier */ $lignes = $panier['lignes']; ?>
 
 <section class="page-head">
     <span class="eyebrow">Mon panier</span>
@@ -19,7 +20,7 @@
         <?php foreach ($lignes as $l): $img = img_url($l['image'] ?? ''); ?>
         <article class="cart-item">
             <div class="thumb"><span class="ph"><?= e(initial($l['nom'])) ?></span>
-                <?php if ($img): ?><img src="<?= e($img) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                <?php if ($img): ?><img src="<?= e($img) ?>" alt="" data-fallback><?php endif; ?>
             </div>
             <div class="ci-info">
                 <h3><?= e($l['nom']) ?></h3>

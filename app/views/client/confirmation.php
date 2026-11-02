@@ -1,4 +1,5 @@
-<?php /** @var array $panier, $user */ ?>
+<?php defined('APP_ROOT') || exit;
+/** @var array $panier, $user, $old */ ?>
 
 <section class="page-head">
     <span class="eyebrow">Dernière étape</span>
@@ -13,12 +14,37 @@
             <?php foreach ($panier['lignes'] as $l): $img = img_url($l['image'] ?? ''); ?>
             <div class="mini-line">
                 <div class="thumb sm"><span class="ph"><?= e(initial($l['nom'])) ?></span>
-                    <?php if ($img): ?><img src="<?= e($img) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                    <?php if ($img): ?><img src="<?= e($img) ?>" alt="" data-fallback><?php endif; ?>
                 </div>
                 <div class="ml-info"><strong><?= e($l['nom']) ?></strong><small>Quantité : <?= (int)$l['quantite'] ?> × <?= e(money($l['prix'])) ?></small></div>
                 <div class="ml-total"><?= e(money($l['sous_total'])) ?></div>
             </div>
             <?php endforeach; ?>
+        </section>
+
+        <section class="panel">
+            <h3>Informations de livraison</h3>
+            <div class="ship-form">
+                <div class="field">
+                    <label for="l_nom">Nom de la personne qui reçoit</label>
+                    <input id="l_nom" name="nom" form="checkout" type="text" maxlength="100" required autocomplete="name" value="<?= e($old['nom']) ?>">
+                </div>
+                <div class="row2">
+                    <div class="field">
+                        <label for="l_tel">Téléphone</label>
+                        <input id="l_tel" name="telephone" form="checkout" type="tel" inputmode="tel" required autocomplete="tel" placeholder="06 12 34 56 78" value="<?= e($old['telephone']) ?>">
+                    </div>
+                    <div class="field">
+                        <label for="l_ville">Ville</label>
+                        <input id="l_ville" name="ville" form="checkout" type="text" maxlength="80" required autocomplete="address-level2" placeholder="Casablanca" value="<?= e($old['ville']) ?>">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="l_adr">Adresse complète</label>
+                    <textarea id="l_adr" name="adresse" form="checkout" rows="3" maxlength="255" required autocomplete="street-address" placeholder="N°, rue, quartier, repère…"><?= e($old['adresse']) ?></textarea>
+                </div>
+                <p class="hint">Notre livreur vous appellera sur ce numéro avant de passer.</p>
+            </div>
         </section>
 
         <section class="panel">
@@ -50,9 +76,14 @@
             <div><dt>Paiement</dt><dd>À la livraison</dd></div>
         </dl>
         <div class="total"><span>Total</span><strong><?= e(money($panier['total'])) ?></strong></div>
-        <form method="post" action="<?= e(url('commande_valider')) ?>">
+        <form id="checkout" method="post" action="<?= e(url('commande_valider')) ?>">
             <?= csrf_field() ?>
-            <button type="submit" class="btn btn-gold btn-block">Valider ma commande</button>
+            <label class="check" for="majeur">
+                <input type="checkbox" id="majeur" name="majeur" value="1" required>
+                <span class="box" aria-hidden="true"></span>
+                <span class="check-txt"><b>+18</b> Je confirme avoir 18 ans ou plus.</span>
+            </label>
+            <button type="submit" class="btn btn-gold btn-block" id="btn-valider" disabled>Valider ma commande</button>
         </form>
         <a class="sum-link" href="<?= e(url('panier')) ?>">← Modifier mon panier</a>
     </aside>

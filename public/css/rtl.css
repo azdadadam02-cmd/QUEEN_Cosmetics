@@ -1,0 +1,39 @@
+/* Arabe — mise en page de droite à gauche */
+html[dir="rtl"] body,html[dir="rtl"] input,html[dir="rtl"] select,html[dir="rtl"] textarea,html[dir="rtl"] button{font-family:'Tajawal','Montserrat',system-ui,sans-serif}
+html[dir="rtl"] h1,html[dir="rtl"] h2,html[dir="rtl"] h3,html[dir="rtl"] .h-serif{font-family:'Tajawal','Cormorant Garamond',serif;letter-spacing:0}
+html[dir="rtl"] *{letter-spacing:0 !important}
+html[dir="rtl"]{--dir:-1}
+/* Menu profil */
+html[dir="rtl"] .profile-menu{right:auto;left:0;transform-origin:top left}
+html[dir="rtl"] .profile-menu::before{right:auto;left:26px}
+html[dir="rtl"] button.pm-item{text-align:right}
+html[dir="rtl"] .profile-btn{padding-right:0;padding-left:10px}
+/* Notifications toast */
+html[dir="rtl"] .toasts{right:auto;left:22px}
+html[dir="rtl"] .toast-success,html[dir="rtl"] .toast-error,html[dir="rtl"] .toast-info{border-left-width:1px;border-left-style:solid;border-right:5px solid var(--gold)}
+html[dir="rtl"] .toast-success{border-right-color:var(--ok)}html[dir="rtl"] .toast-error{border-right-color:var(--danger)}
+/* Bandeau pub */
+html[dir="rtl"] .ad-badge{right:auto;left:clamp(22px,6vw,80px)}
+html[dir="rtl"] .ads-arrow.prev{left:auto;right:18px}html[dir="rtl"] .ads-arrow.next{right:auto;left:18px}
+html[dir="rtl"] .ads-arrow svg{transform:scaleX(-1)}
+/* Recherche */
+html[dir="rtl"] .search svg{left:auto;right:16px}
+html[dir="rtl"] .search input{padding:14px 46px 14px 18px}
+/* Textes alignés */
+html[dir="rtl"] .status{text-align:left}
+html[dir="rtl"] .ci-total{text-align:left}html[dir="rtl"] .clear-form{text-align:left}
+html[dir="rtl"] .steps li::before{right:auto;left:50%}
+html[dir="rtl"] .foot-brand em{margin-left:0;margin-right:8px}
+html[dir="rtl"] .nav-link .badge{right:auto;left:-3px}
+html[dir="rtl"] .old-price{margin-right:0;margin-left:4px}
+/* Tableaux admin */
+html[dir="rtl"] .tbl th,html[dir="rtl"] .tbl td{text-align:right}
+html[dir="rtl"] .num{text-align:left!important}
+html[dir="rtl"] .right{text-align:left!important}
+html[dir="rtl"] .promo-badge{right:auto;left:12px}
+html[dir="rtl"] .lang-bar{justify-content:flex-start}
+html[dir="rtl"] .brand{direction:ltr}
+html[dir="rtl"] .role-tag{margin-right:0;margin-left:14px}
+html[dir="rtl"] input[type=email],html[dir="rtl"] input[type=tel],html[dir="rtl"] input[type=number],html[dir="rtl"] input[type=password]{direction:ltr;text-align:right}
+@media (max-width:760px){html[dir="rtl"] .nav-link .badge{right:auto;left:-3px}html[dir="rtl"] .ci-total{text-align:right}}
+html[dir="rtl"] .promo-badge,html[dir="rtl"] .ad-badge,html[dir="rtl"] .pill{direction:ltr;unicode-bidi:isolate}

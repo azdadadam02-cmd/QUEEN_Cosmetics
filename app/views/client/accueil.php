@@ -1,4 +1,4 @@
-<?php
+<?php defined('APP_ROOT') || exit;
 /** @var array $produits, $cats, $pubs */
 $multi = count($pubs) > 1;
 ?>
@@ -10,7 +10,7 @@ $multi = count($pubs) > 1;
         $img = img_url($p['image'] ?? '');
         $red = (int)($p['reduction'] ?? 0); ?>
         <article class="ad-slide">
-            <?php if ($img): ?><img src="<?= e($img) ?>" alt="" loading="lazy" onerror="this.remove()"><?php endif; ?>
+            <?php if ($img): ?><img src="<?= e($img) ?>" alt="" loading="lazy" data-fallback><?php endif; ?>
             <div class="ad-shade"></div>
             <div class="ad-content">
                 <span class="eyebrow gold">Offre exclusive</span>
@@ -78,14 +78,15 @@ $multi = count($pubs) > 1;
         <article class="card reveal<?= $out ? ' soldout' : '' ?>" data-cat="<?= e($p['categorie']) ?>" data-name="<?= e($p['nom']) ?>">
             <div class="card-media">
                 <span class="ph" aria-hidden="true"><?= e(initial($p['nom'])) ?></span>
-                <?php if ($img): ?><img src="<?= e($img) ?>" alt="<?= e($p['nom']) ?>" loading="lazy" onerror="this.remove()"><?php endif; ?>
+                <?php if ($img): ?><img src="<?= e($img) ?>" alt="<?= e($p['nom']) ?>" loading="lazy" data-fallback><?php endif; ?>
                 <?php if ($p['categorie']): ?><span class="tag"><?= e($p['categorie']) ?></span><?php endif; ?>
+                <?php if (!empty($p['promo'])): ?><span class="promo-badge">-<?= (int)$p['promo'] ?>%</span><?php endif; ?>
                 <?php if ($out): ?><span class="soldout-badge">Out of stock</span><?php endif; ?>
             </div>
             <div class="card-body">
                 <h3><?= e($p['nom']) ?></h3>
                 <div class="card-row">
-                    <span class="price"><?= e(money($p['prix'])) ?></span>
+                    <span class="price"><?php if (!empty($p['promo'])): ?><del class="old-price"><?= e(money($p['prix_original'])) ?></del> <?php endif; ?><?= e(money($p['prix'])) ?></span>
                     <span class="status <?= $statusClass ?>"><?= e($statusText) ?></span>
                 </div>
                 <form class="add-form" method="post" action="<?= e(url('panier_ajouter')) ?>">

@@ -1,4 +1,4 @@
-<?php
+<?php defined('APP_ROOT') || exit;
 class Paiement
 {
     private PDO $db;

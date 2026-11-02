@@ -1,4 +1,4 @@
-<?php
+<?php defined('APP_ROOT') || exit;
 class ClientController
 {
     /** Page principale : bandeau publicitaire + produits */

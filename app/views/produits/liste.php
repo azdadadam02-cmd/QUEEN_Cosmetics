@@ -1,79 +1,92 @@
-<?php
-/**
- * app/views/produits/liste.php
- * ROLE    : tableau des produits (consultation) + actions Modifier / Supprimer.
- * POURQUOI : la vue ne fait QUE de l'affichage ; elle reçoit $produits du contrôleur.
- *
- * Variables reçues de ProduitController::liste() : $titre, $produits
- */
+<?php defined('APP_ROOT') || exit; ?>
+<section class="page-head">
+    <span class="eyebrow">Responsable des produits</span>
+    <h1 class="h-serif">Produits</h1>
+    <p class="lead">Ajoutez de nouveaux produits au catalogue : ils apparaissent aussitôt sur l'accueil des clients.</p>
+</section>
 
-// Petites statistiques calculées pour les cartes du haut (affichage seulement, pas de SQL ici).
-$total  = count($produits);
-$faible = count(array_filter($produits, fn($p) => $p['quantite_stock'] > 0
-                                              && $p['quantite_stock'] < Produit::SEUIL_STOCK_FAIBLE));
-$rupture = count(array_filter($produits, fn($p) => $p['quantite_stock'] == 0));
-?>
-<link rel="stylesheet" href="<?= e(asset('css/produits.css')) ?>">
-<div class="produits-page">
+<div class="split">
+    <form class="panel form-panel" method="post" action="<?= e(url('produit_ajouter')) ?>" enctype="multipart/form-data" novalidate>
+        <?= csrf_field() ?>
+        <h3>Nouveau produit</h3>
 
-<h1>Gestion des produits</h1>
+        <div class="field">
+            <label for="p_nom">Nom du produit</label>
+            <input id="p_nom" name="nom" type="text" maxlength="100" required placeholder="Ex : Rouge à lèvres Royal" value="<?= e($old['nom']) ?>">
+        </div>
+        <div class="field">
+            <label for="p_cat">Catégorie</label>
+            <input id="p_cat" name="categorie" type="text" maxlength="50" list="cats" placeholder="Maquillage, Soin, Parfum…" value="<?= e($old['categorie']) ?>">
+            <datalist id="cats"><?php foreach ($categories as $c): ?><option value="<?= e($c) ?>"><?php endforeach; ?></datalist>
+        </div>
+        <div class="row2">
+            <div class="field">
+                <label for="p_prix">Prix (DH)</label>
+                <input id="p_prix" name="prix" type="text" inputmode="decimal" required placeholder="120" value="<?= e($old['prix']) ?>">
+            </div>
+            <div class="field">
+                <label for="p_stock">Stock</label>
+                <input id="p_stock" name="stock" type="number" min="0" step="1" required placeholder="20" value="<?= e($old['stock']) ?>">
+            </div>
+        </div>
+        <div class="field">
+            <label for="p_promo">Promotion (%) <small>— 0 = aucune ; visible chez les clients</small></label>
+            <input id="p_promo" name="promotion" type="number" min="0" max="90" step="1" placeholder="0" value="<?= e($old['promotion']) ?>">
+        </div>
+        <div class="field">
+            <label for="p_img">Image <small>(JPG, PNG, WEBP · 3 Mo max)</small></label>
+            <label class="drop" for="p_img">
+                <img id="p_preview" alt="" hidden>
+                <span id="p_hint">Cliquez pour choisir une image</span>
+            </label>
+            <input id="p_img" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        </div>
+        <button type="submit" class="btn btn-gold btn-block">Ajouter le produit</button>
+    </form>
 
-<div class="stats">
-  <div class="stat"><span><?= $total ?></span>Produits</div>
-  <div class="stat"><span><?= $faible ?></span>Stock faible</div>
-  <div class="stat"><span><?= $rupture ?></span>En rupture</div>
+    <div>
+        <?php $editable = true; require APP_ROOT . '/app/views/partials/produits_table.php'; ?>
+    </div>
 </div>
 
-<div class="page-head">
-  <h2>Liste des produits</h2>
-  <div class="actions">
-    <a class="btn btn-ghost" href="<?= e(url('produits', 'stock')) ?>">Gérer le stock</a>
-    <a class="btn" href="<?= e(url('produits', 'creer')) ?>">+ Ajouter</a>
-  </div>
-</div>
-
-<?php if (!$produits): ?>
-  <p class="muted">Aucun produit pour le moment.</p>
-<?php else: ?>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr><th>Image</th><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Stock</th><th>Actions</th></tr>
-    </thead>
-    <tbody>
-    <?php foreach ($produits as $p): ?>
-      <tr>
-        <td>
-          <?php if ($img = image_url($p['image'])): ?>
-            <img class="mini" src="<?= e($img) ?>" alt="">
-          <?php else: ?>–<?php endif; ?>
-        </td>
-        <td><?= e($p['nom']) ?></td>
-        <td><?= e($p['categorie']) ?></td>
-        <td><?= money($p['prix']) ?></td>
-        <td><?= (int)$p['quantite_stock'] ?></td>
-        <td class="nowrap">
-          <?php /* Icône crayon = lien vers la modification. title/aria-label = accessibilité. */ ?>
-          <a class="icon-btn icon-edit" title="Modifier" aria-label="Modifier"
-             href="<?= e(url('produits', 'modifier', ['id' => $p['id']])) ?>">
-            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-          </a>
-
-          <?php /* Icône corbeille = bouton dans un formulaire POST (pas un lien) :
-                   une suppression ne doit jamais se faire par simple clic sur une URL. */ ?>
-          <form method="post" action="<?= e(url('produits', 'supprimer')) ?>"
-                class="inline" data-confirm="Supprimer ce produit ?">
-            <?= csrf_field() ?>
-            <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
-            <button class="icon-btn icon-del" title="Supprimer" aria-label="Supprimer">
-              <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></svg>
-            </button>
-          </form>
-        </td>
-      </tr>
-    <?php endforeach; ?>
-    </tbody>
-  </table>
-</div>
-<?php endif; ?>
-</div>     
+<dialog id="prod-dialog" class="dialog">
+    <form method="post" action="<?= e(url('produit_modifier')) ?>" enctype="multipart/form-data" novalidate>
+        <?= csrf_field() ?>
+        <input type="hidden" name="id" id="e_id" value="0">
+        <h3>Modifier le produit</h3>
+        <div class="field">
+            <label for="e_nom">Nom du produit</label>
+            <input id="e_nom" name="nom" type="text" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for="e_cat">Catégorie</label>
+            <input id="e_cat" name="categorie" type="text" maxlength="50" list="cats">
+        </div>
+        <div class="row2">
+            <div class="field">
+                <label for="e_prix">Prix (DH)</label>
+                <input id="e_prix" name="prix" type="text" inputmode="decimal" required>
+            </div>
+            <div class="field">
+                <label for="e_stock">Stock</label>
+                <input id="e_stock" name="stock" type="number" min="0" step="1" required>
+            </div>
+        </div>
+        <div class="field">
+            <label for="e_promo">Promotion (%) <small>— 0 = aucune</small></label>
+            <input id="e_promo" name="promotion" type="number" min="0" max="90" step="1" value="0">
+        </div>
+        <div class="field">
+            <label for="e_img">Image <small>(laisser vide pour garder l'actuelle)</small></label>
+            <label class="drop" for="e_img">
+                <img id="e_preview" alt="" hidden>
+                <span id="e_hint">Cliquez pour changer l'image</span>
+            </label>
+            <input id="e_img" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        </div>
+        <div class="dialog-actions">
+            <button type="button" class="btn-ghost" data-dialog-close>Annuler</button>
+            <button type="submit" class="btn btn-gold btn-sm">Enregistrer</button>
+        </div>
+    </form>
+</dialog>

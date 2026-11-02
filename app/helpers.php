@@ -3,7 +3,10 @@
  * QUEEN Cosmetics — fonctions utilitaires partagées (espace client)
  */
 if (!defined('APP_ROOT')) { define('APP_ROOT', dirname(__DIR__)); }
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__ . '/security.php';
+security_boot();
+require_once __DIR__ . '/lang.php';
+lang_boot();   // en-têtes de sécurité + session durcie
 
 /* ───────────── Sortie & URL ───────────── */
 function e($v): string { return htmlspecialchars((string)$v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
@@ -51,7 +54,7 @@ function is_ajax(): bool { return strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?
 function json_out(array $data, int $code = 200): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    echo json_encode(lang_json($data), JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -61,13 +64,24 @@ function csrf_token(): string {
     return $_SESSION['csrf'];
 }
 function csrf_field(): string { return '<input type="hidden" name="_csrf" value="' . e(csrf_token()) . '">'; }
-function csrf_check(): void {
+/** Jeton valide ET requête issue de notre propre site (contrôle de l'en-tête Origin) */
+function csrf_valid(): bool {
     $sent = $_POST['_csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    if (!is_string($sent) || !hash_equals(csrf_token(), $sent)) {
-        if (is_ajax()) json_out(['ok' => false, 'message' => 'Session expirée, rechargez la page.'], 419);
-        flash_add('error', 'Session expirée, veuillez réessayer.');
-        redirect('accueil');
+    if (!is_string($sent) || $sent === '' || !hash_equals(csrf_token(), $sent)) return false;
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    if ($origin !== '') {
+        $oh = parse_url($origin, PHP_URL_HOST);
+        $mh = parse_url('//' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST);
+        if (!$oh || !$mh || strcasecmp($oh, $mh) !== 0) return false;
     }
+    return true;
+}
+function csrf_check(): void {
+    if (csrf_valid()) return;
+    audit('csrf_echec', (string)($_GET['action'] ?? ''));
+    if (is_ajax()) json_out(['ok' => false, 'message' => 'Session expirée, rechargez la page.'], 419);
+    flash_add('error', 'Session expirée, veuillez réessayer.');
+    redirect_back('accueil');
 }
 
 /* ───────────── Base de données ─────────────
@@ -90,6 +104,8 @@ function db(): PDO {
         throw new RuntimeException("config/database.php doit retourner un objet PDO (ou définir \$pdo).");
     }
     $found->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $found->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);      // vraies requêtes préparées (anti injection SQL)
+    $found->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo = $found;
 }
 
@@ -100,32 +116,21 @@ function current_user(): ?array {
     static $cache = false;
     if ($cache !== false) return $cache;
 
-    $s = $_SESSION['user'] ?? $_SESSION['utilisateur'] ?? null;
-    if (is_array($s)) {
-        $id    = $s['id'] ?? $s['user_id'] ?? null;
-        $nom   = $s['nom'] ?? $s['name'] ?? '';
-        $email = $s['email'] ?? '';
-        $role  = $s['role'] ?? 'client';
-    } else {
-        $id    = $_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['utilisateur_id'] ?? $_SESSION['id_utilisateur'] ?? null;
-        $nom   = $_SESSION['user_nom'] ?? $_SESSION['nom'] ?? $_SESSION['user_name'] ?? '';
-        $email = $_SESSION['user_email'] ?? $_SESSION['email'] ?? '';
-        $role  = $_SESSION['user_role'] ?? $_SESSION['role'] ?? 'client';
-    }
-    if (!$id) return $cache = null;
+    $s  = $_SESSION['user'] ?? $_SESSION['utilisateur'] ?? null;
+    $id = is_array($s) ? ($s['id'] ?? $s['user_id'] ?? null)
+                       : ($_SESSION['user_id'] ?? $_SESSION['id'] ?? $_SESSION['utilisateur_id'] ?? $_SESSION['id_utilisateur'] ?? null);
+    if (!$id || !is_numeric($id)) return $cache = null;
 
-    if ($nom === '' || $email === '') {            // complète depuis la base si besoin
-        $st = db()->prepare('SELECT nom, email, role FROM utilisateurs WHERE id = ?');
-        $st->execute([(int)$id]);
-        if ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-            $nom   = $nom   !== '' ? $nom   : $row['nom'];
-            $email = $email !== '' ? $email : $row['email'];
-            $role  = $role ?: $row['role'];
-        } else {
-            return $cache = null;                  // compte supprimé
-        }
+    // Le rôle n'est JAMAIS pris dans la session : relu en base à chaque requête.
+    // → un rôle modifié ou un compte supprimé par l'admin prend effet immédiatement.
+    $st = db()->prepare('SELECT id, nom, email, role FROM utilisateurs WHERE id = ?');
+    $st->execute([(int)$id]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        unset($_SESSION['user'], $_SESSION['utilisateur'], $_SESSION['user_id'], $_SESSION['id'], $_SESSION['utilisateur_id'], $_SESSION['id_utilisateur']);
+        return $cache = null;
     }
-    return $cache = ['id' => (int)$id, 'nom' => (string)$nom, 'email' => (string)$email, 'role' => (string)$role];
+    return $cache = ['id' => (int)$row['id'], 'nom' => (string)$row['nom'], 'email' => (string)$row['email'], 'role' => (string)($row['role'] ?: 'client')];
 }
 
 /* ───────────── Notifications (suivi « déjà vu » par cookie) ───────────── */
@@ -182,4 +187,67 @@ function render(string $view, array $data = [], string $active = ''): void {
     require APP_ROOT . '/app/views/layouts/header.php';
     require APP_ROOT . '/app/views/' . $view . '.php';
     require APP_ROOT . '/app/views/layouts/footer.php';
+}
+
+
+/* ───────────── Espace personnel (admin / responsables) ───────────── */
+const ROLES_LABELS = [
+    'admin'                 => 'Administrateur',
+    'responsable_produits'  => 'Responsable produits',
+    'responsable_commandes' => 'Responsable commandes',
+    'client'                => 'Client',
+];
+/** Page d'accueil de chaque rôle (mêmes routes que AuthController::redirectByRole) */
+function staff_home(string $role): string {
+    return [
+        'admin'                 => 'admin_dashboard',
+        'responsable_produits'  => 'produits_liste',
+        'responsable_commandes'  => 'commandes_gestion',
+    ][$role] ?? 'accueil';
+}
+/** Bloque l'accès si non connecté ou si le rôle n'est pas autorisé */
+function require_role(array $roles): array {
+    $u = current_user();
+    if (!$u) { flash_add('error', 'Veuillez vous connecter.'); redirect('login'); }
+    if (!in_array($u['role'], $roles, true)) {
+        audit('acces_refuse', (string)($_GET['action'] ?? '') . ' role=' . $u['role']);
+        flash_add('error', "Accès refusé : cette page n'est pas accessible avec votre rôle.");
+        redirect(staff_home($u['role']));
+    }
+    return $u;
+}
+function staff_render(string $view, array $data = [], string $active = ''): void {
+    $user = current_user();
+    extract($data, EXTR_SKIP);
+    require APP_ROOT . '/app/views/layouts/staff_header.php';
+    require APP_ROOT . '/app/views/' . $view . '.php';
+    require APP_ROOT . '/app/views/layouts/staff_footer.php';
+}
+function stock_info(int $q): array {      // [libellé, classe pill]
+    if ($q <= 0) return ['Rupture', 'refusee'];
+    if ($q <= 5) return ['Stock faible', 'attente'];
+    return ['Disponible', 'livree'];
+}
+
+/** Enregistre l'image envoyée (champ $field) dans public/images/ ; null si aucun fichier. Lève RuntimeException si invalide. */
+function upload_image(string $field, string $nom): ?string {
+    $f = $_FILES[$field] ?? null;
+    if (!$f || ($f['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
+    if ($f['error'] !== UPLOAD_ERR_OK)  throw new RuntimeException("L'envoi de l'image a échoué (fichier trop lourd ?).");
+    if ($f['size'] > 3 * 1024 * 1024)   throw new RuntimeException("L'image ne doit pas dépasser 3 Mo.");
+
+    $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+    $mime  = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    if (!isset($types[$mime])) throw new RuntimeException("Format d'image non accepté (JPG, PNG, WEBP ou GIF).");
+
+    $dim = @getimagesize($f['tmp_name']);                       // doit être une vraie image décodable
+    if (!$dim || $dim[0] < 1 || $dim[1] < 1 || $dim[0] > 6000 || $dim[1] > 6000) throw new RuntimeException("Image invalide ou trop grande (6000 px maximum).");
+    if (!is_uploaded_file($f['tmp_name']))    throw new RuntimeException("Envoi de fichier invalide.");
+
+    $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $nom) ?: 'image'), '-')) ?: 'image';
+    $name = substr($slug, 0, 40) . '-' . bin2hex(random_bytes(4)) . '.' . $types[$mime];
+    $dir  = APP_ROOT . '/public/images';
+    if (!is_dir($dir) && !mkdir($dir, 0755, true)) throw new RuntimeException('Dossier images introuvable.');
+    if (!move_uploaded_file($f['tmp_name'], $dir . '/' . $name)) throw new RuntimeException("Impossible d'enregistrer l'image.");
+    return $name;
 }

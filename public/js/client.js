@@ -1,3 +1,19 @@
+/* Traduction des textes JS (arabe) — la langue vient de <html lang> */
+window.__ = (() => {
+  const AR = {
+    'Ajouté ✓': 'تمت الإضافة ✓', 'Ajouter au panier': 'أضف إلى السلة',
+    'Modifier l\u2019utilisateur': 'تعديل المستخدم', 'Ajouter un utilisateur': 'إضافة مستخدم',
+    'Laisser vide pour ne pas changer': 'اتركه فارغًا لعدم التغيير', '(optionnel)': '(اختياري)',
+    '(8 caractères min. + 1 majuscule)': '(8 أحرف على الأقل + حرف كبير)',
+    'Cliquez pour changer l\u2019image': 'انقر لتغيير الصورة', 'Cliquez pour ajouter une image': 'انقر لإضافة صورة',
+    'Cliquez pour choisir une image': 'انقر لاختيار صورة', 'Modifier la publicité': 'تعديل الإعلان', 'Ajouter une publicité': 'إضافة إعلان',
+    '(vide = garder l\u2019actuelle)': '(فارغ = الإبقاء على الحالية)', '(JPG, PNG, WEBP \u00b7 3 Mo max)': '(JPG, PNG, WEBP \u00b7 3 م.ب كحد أقصى)',
+    'Publicité': 'الإعلان', 'Masquer': 'إخفاء', 'Détails': 'التفاصيل'
+  };
+  const ar = document.documentElement.lang === 'ar';
+  return s => (ar && AR[s]) || s;
+})();
+
 /* QUEEN Cosmetics — espace client */
 (() => {
   'use strict';
@@ -51,7 +67,7 @@
 
     if (dots) slides.forEach((_, k) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.setAttribute('aria-label', 'Publicité ' + (k + 1));
+      b.type = 'button'; b.setAttribute('aria-label', __('Publicité') + ' ' + (k + 1));
       b.addEventListener('click', () => { go(k); restart(); });
       dots.appendChild(b);
     });
@@ -112,8 +128,8 @@
       toast(d.message, d.ok ? 'success' : 'error');
       if (typeof d.count === 'number') setCart(d.count);
       if (d.ok && lbl) {
-        btn.classList.add('done'); lbl.textContent = 'Ajouté ✓';
-        setTimeout(() => { btn.classList.remove('done'); lbl.textContent = 'Ajouter au panier'; }, 1600);
+        btn.classList.add('done'); lbl.textContent = __('Ajouté ✓');
+        setTimeout(() => { btn.classList.remove('done'); lbl.textContent = __('Ajouter au panier'); }, 1600);
       }
     } catch (err) {
       f.submit();                       // repli : envoi classique du formulaire
@@ -121,6 +137,13 @@
       btn.classList.remove('loading');
     }
   });
+
+  /* ───── Confirmation : « +18 » obligatoire pour valider ───── */
+  const majeur = $('#majeur'), valider = $('#btn-valider');
+  if (majeur && valider) {
+    const sync = () => { valider.disabled = !majeur.checked; };
+    majeur.addEventListener('change', sync); sync();
+  }
 
   /* ───── Apparition au scroll ───── */
   const rev = $$('.reveal');
@@ -132,4 +155,13 @@
   } else {
     rev.forEach(el => el.classList.add('in'));
   }
+})();
+
+/* Image cassée → on la retire (remplace l'ancien onerror inline, interdit par la CSP) */
+(() => {
+  const fix = img => { if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) img.remove(); };
+  document.querySelectorAll('img[data-fallback]').forEach(img => {
+    img.addEventListener('error', () => img.remove());
+    fix(img);
+  });
 })();

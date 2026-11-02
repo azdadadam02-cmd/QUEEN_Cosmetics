@@ -1,0 +1,5 @@
+# QUEEN — protection de la racine du projet
+Options -Indexes
+<FilesMatch "\.(sql|log|md|txt|ini|env|bak|sh)$">
+    Require all denied
+</FilesMatch>

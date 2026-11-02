@@ -1,4 +1,5 @@
-<?php /** @var array $commandes */ ?>
+<?php defined('APP_ROOT') || exit;
+/** @var array $commandes */ ?>
 
 <section class="page-head">
     <span class="eyebrow">Suivi</span>
@@ -35,6 +36,9 @@
         </header>
 
         <p class="notif-msg"><?= e($msg) ?></p>
+        <?php if (!empty($c['adresse'])): ?>
+        <p class="notif-ship">📍 Livraison : <?= e($c['nom_livraison'] ?: '') ?> — <?= e(trim($c['adresse'] . ', ' . ($c['ville'] ?? ''), ' ,')) ?> · ☎ <?= e($c['telephone'] ?? '') ?></p>
+        <?php endif; ?>
 
         <ol class="steps<?= $refus ? ' refused' : '' ?>" aria-label="Progression de la commande">
             <?php foreach ($steps as $n => $txt):
@@ -47,7 +51,7 @@
             <?php foreach ($c['articles'] as $a): $img = img_url($a['image'] ?? ''); ?>
             <li>
                 <div class="thumb xs"><span class="ph"><?= e(initial($a['nom'])) ?></span>
-                    <?php if ($img): ?><img src="<?= e($img) ?>" alt="" onerror="this.remove()"><?php endif; ?>
+                    <?php if ($img): ?><img src="<?= e($img) ?>" alt="" data-fallback><?php endif; ?>
                 </div>
                 <span class="ni-name"><?= e($a['nom']) ?> <em>× <?= (int)$a['quantite'] ?></em></span>
                 <span class="ni-price"><?= e(money($a['prix_unitaire'] * $a['quantite'])) ?></span>

@@ -1,4 +1,5 @@
 <?php
+defined("APP_ROOT") || exit;
 // app/views/auth/register.php
 $errors    = $_SESSION['errors'] ?? [];
 $authError = $_SESSION['auth_error'] ?? '';
@@ -38,6 +39,7 @@ unset($_SESSION['errors'], $_SESSION['auth_error'], $_SESSION['old']);
 
         <!-- Panneau Formulaire Droite -->
         <div class="auth-form-panel">
+            <div class="lang-bar"><a class="lang-switch" href="<?= e(lang_switch_url()) ?>" hreflang="<?= is_rtl() ? 'fr' : 'ar' ?>"><?= e(lang_switch_label()) ?></a></div>
             
             <!-- ESPACE LOGO (IMG UNIQUEMENT) -->
             <div class="logo-box">
@@ -61,6 +63,7 @@ unset($_SESSION['errors'], $_SESSION['auth_error'], $_SESSION['old']);
 
             <!-- Formulaire CRÉER UN COMPTE -->
             <form id="registerForm" action="index.php?action=register_post" method="POST" novalidate>
+                <?= csrf_field() ?>
                 
                 <div class="input-group">
                     <label for="reg_nom">Nom complet</label>

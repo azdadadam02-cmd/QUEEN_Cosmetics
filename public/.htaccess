@@ -1,0 +1,8 @@
+Options -Indexes
+# Seul index.php est exécutable ici (aucun autre .php / phar)
+<FilesMatch "^(?!index\.php$).*\.(php[0-9s]?|phtml|phar)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
