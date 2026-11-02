@@ -1,71 +1,44 @@
 <?php
-// public/index.php
-session_start();
+/**
+ * QUEEN Cosmetics — point d'entrée (routeur)
+ * URL : index.php?action=<route>
+ *
+ * ⚠ Si tu as déjà un index.php, garde le tien et ajoute seulement
+ *   le bloc « ESPACE CLIENT » dans $routes (+ l'autoload et helpers.php).
+ */
+define('APP_ROOT', dirname(__DIR__));
+require_once APP_ROOT . '/app/helpers.php';
 
-require_once __DIR__ . '/../app/controllers/AuthController.php';
+spl_autoload_register(function (string $class): void {
+    foreach (['controllers', 'models'] as $dir) {
+        $file = APP_ROOT . "/app/$dir/$class.php";
+        if (is_file($file)) { require_once $file; return; }
+    }
+});
 
-$action = $_GET['action'] ?? 'login';
-$authController = new AuthController();
+$routes = [
+    // ── ESPACE CLIENT ────────────────────────────────────────────
+    'accueil'          => ['ClientController',   'accueil'],
+    'panier'           => ['ClientController',   'panier'],
+    'panier_ajouter'   => ['ClientController',   'panierAjouter'],
+    'panier_modifier'  => ['ClientController',   'panierModifier'],
+    'notifications'    => ['ClientController',   'notifications'],
+    'confirmation'     => ['CommandeController', 'confirmation'],
+    'commande_valider' => ['CommandeController', 'valider'],
 
-switch ($action) {
-    // Pages d'authentification
-    case 'login':
-        $authController->showLogin();
-        break;
+    // ── AUTH (méthodes de TON AuthController) ───────────────────
+    'login'            => ['AuthController',     'showLogin'],
+    'login_post'       => ['AuthController',     'login'],
+    'register'         => ['AuthController',     'showRegister'],
+    'register_post'    => ['AuthController',     'register'],
+    'logout'           => ['AuthController',     'logout'],
+];
 
-    case 'login_post':
-        $authController->login();
-        break;
-
-    case 'register':
-        $authController->showRegister();
-        break;
-
-    case 'register_post':
-        $authController->register();
-        break;
-
-    case 'logout':
-        $authController->logout();
-        break;
-
-    // Espace Client
-    case 'accueil':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'client') {
-            header('Location: index.php?action=login');
-            exit;
-        }
-        require_once __DIR__ . '/../app/views/client/accueil.php';
-        break;
-
-    // Espace Admin
-    case 'admin_dashboard':
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-            header('Location: index.php?action=login');
-            exit;
-        }
-        require_once __DIR__ . '/../app/views/admin/dashboard.php';
-        break;
-
-    // Espace Responsable Produits
-    case 'produits_liste':
-        if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['responsable_produits', 'admin'])) {
-            header('Location: index.php?action=login');
-            exit;
-        }
-        require_once __DIR__ . '/../app/views/produits/liste.php';
-        break;
-
-    // Espace Responsable Commandes
-    case 'commandes_gestion':
-        if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['responsable_commandes', 'admin'])) {
-            header('Location: index.php?action=login');
-            exit;
-        }
-        require_once __DIR__ . '/../app/views/commandes/gestion.php';
-        break;
-
-    default:
-        $authController->showLogin();
-        break;
+$page = $_GET['action'] ?? $_GET['page'] ?? 'accueil';
+if (!isset($routes[$page])) {
+    http_response_code(404);
+    echo '<!DOCTYPE html><meta charset="utf-8"><title>404</title><p style="font:16px sans-serif;padding:40px">Page introuvable. <a href="' . e(url('accueil')) . '">Retour à l\'accueil</a></p>';
+    exit;
 }
+[$controller, $method] = $routes[$page];
+(new $controller())->$method();

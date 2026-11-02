@@ -125,6 +125,19 @@ class AuthController {
         }
 
         if ($this->getUserModel()->createClient($nom, $email, $password)) {
+            // Connexion automatique après l'inscription → direct à l'accueil
+            $user = $this->getUserModel()->findByEmail($email);
+            if ($user) {
+                session_regenerate_id(true);
+                $_SESSION['user'] = [
+                    'id'    => (int) $user['id'],
+                    'nom'   => $user['nom'],
+                    'email' => $user['email'],
+                    'role'  => $user['role']
+                ];
+                header('Location: index.php?action=accueil');
+                exit;
+            }
             $_SESSION['success_msg'] = "Votre compte client a été créé avec succès ! Connectez-vous maintenant.";
             header('Location: index.php?action=login');
             exit;
@@ -158,7 +171,18 @@ class AuthController {
         $_SESSION = [];
         session_unset();
         session_destroy();
-        header('Location: index.php?action=login');
+
+        // Reste sur la page actuelle (sauf pages réservées aux clients connectés → accueil)
+        $target = 'index.php?action=accueil';
+        $ref    = $_SERVER['HTTP_REFERER'] ?? '';
+        if ($ref !== '' && parse_url($ref, PHP_URL_HOST) === ($_SERVER['SERVER_NAME'] ?? null)) {
+            parse_str((string) parse_url($ref, PHP_URL_QUERY), $q);
+            $act = $q['action'] ?? 'accueil';
+            if (!in_array($act, ['notifications', 'confirmation', 'commande_valider', 'logout', 'login_post', 'register_post'], true)) {
+                $target = 'index.php?action=' . rawurlencode($act);
+            }
+        }
+        header('Location: ' . $target);
         exit;
     }
 }
